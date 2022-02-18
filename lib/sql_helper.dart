@@ -6,18 +6,18 @@ class SQLHelper {
     await database.execute("""CREATE TABLE items(
         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         title TEXT,
-        description TEXT,
+        datetime TEXT,
         createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
       )
       """);
   }
 // id: the id of a item
-// title, description: name and description of your activity
+// title, datetime: name and datetime of your activity
 // created_at: the time that the item was created. It will be automatically handled by SQLite
 
   static Future<sql.Database> db() async {
     return sql.openDatabase(
-      'kindacode.db',
+      'note.db',
       version: 1,
       onCreate: (sql.Database database, int version) async {
         await createTables(database);
@@ -26,10 +26,10 @@ class SQLHelper {
   }
 
   // Create new item (journal)
-  static Future<int> createItem(String title, String? descrption) async {
+  static Future<int> createItem(String title, String? date_time) async {
     final db = await SQLHelper.db();
 
-    final data = {'title': title, 'description': descrption};
+    final data = {'title': title, 'datetime': date_time};
     final id = await db.insert('items', data,
         conflictAlgorithm: sql.ConflictAlgorithm.replace);
     return id;
@@ -50,12 +50,12 @@ class SQLHelper {
 
   // Update an item by id
   static Future<int> updateItem(
-      int id, String title, String? descrption) async {
+      int id, String title, String? date_time) async {
     final db = await SQLHelper.db();
 
     final data = {
       'title': title,
-      'description': descrption,
+      'datetime': date_time,
       'createdAt': DateTime.now().toString()
     };
 

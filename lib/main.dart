@@ -1,3 +1,4 @@
+// main.dart
 import 'package:flutter/material.dart';
 
 import 'sql_helper.dart';
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         // Remove the debug banner
         debugShowCheckedModeBanner: false,
-        title: 'SQLite CRUD',
+        title: 'Sqlite CRUD',
         theme: ThemeData(
           primarySwatch: Colors.orange,
         ),
@@ -30,14 +31,15 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Map<String, dynamic>> _journals = [];
+  // All notes
+  List<Map<String, dynamic>> _notes = [];
 
   bool _isLoading = true;
   // This function is used to fetch all data from the database
   void _refreshJournals() async {
     final data = await SQLHelper.getItems();
     setState(() {
-      _journals = data;
+      _notes = data;
       _isLoading = false;
     });
   }
@@ -49,18 +51,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _dateControler = TextEditingController();
 
-  // This function will be triggered when the floating button is pressed
-  // It will also be triggered when you want to update an item
   void _showForm(int? id) async {
     if (id != null) {
-      // id == null -> create new item
-      // id != null -> update an existing item
       final existingJournal =
-          _journals.firstWhere((element) => element['id'] == id);
+          _notes.firstWhere((element) => element['id'] == id);
       _titleController.text = existingJournal['title'];
-      _descriptionController.text = existingJournal['description'];
+      _dateControler.text = existingJournal['datetime'];
     }
 
     showModalBottomSheet(
@@ -72,7 +70,6 @@ class _HomePageState extends State<HomePage> {
                 top: 15,
                 left: 15,
                 right: 15,
-                // this will prevent the soft keyboard from covering the text fields
                 bottom: MediaQuery.of(context).viewInsets.bottom + 120,
               ),
               child: Column(
@@ -87,15 +84,15 @@ class _HomePageState extends State<HomePage> {
                     height: 10,
                   ),
                   TextField(
-                    controller: _descriptionController,
-                    decoration: const InputDecoration(hintText: 'Description'),
+                    controller: _dateControler,
+                    decoration: const InputDecoration(hintText: 'Date'),
                   ),
                   const SizedBox(
                     height: 20,
                   ),
                   ElevatedButton(
                     onPressed: () async {
-                      // Save new journal
+                      // Save new note
                       if (id == null) {
                         await _addItem();
                       }
@@ -106,7 +103,7 @@ class _HomePageState extends State<HomePage> {
 
                       // Clear the text fields
                       _titleController.text = '';
-                      _descriptionController.text = '';
+                      _dateControler.text = '';
 
                       // Close the bottom sheet
                       Navigator.of(context).pop();
@@ -120,15 +117,13 @@ class _HomePageState extends State<HomePage> {
 
 // Insert a new journal to the database
   Future<void> _addItem() async {
-    await SQLHelper.createItem(
-        _titleController.text, _descriptionController.text);
+    await SQLHelper.createItem(_titleController.text, _dateControler.text);
     _refreshJournals();
   }
 
   // Update an existing journal
   Future<void> _updateItem(int id) async {
-    await SQLHelper.updateItem(
-        id, _titleController.text, _descriptionController.text);
+    await SQLHelper.updateItem(id, _titleController.text, _dateControler.text);
     _refreshJournals();
   }
 
@@ -136,7 +131,7 @@ class _HomePageState extends State<HomePage> {
   void _deleteItem(int id) async {
     await SQLHelper.deleteItem(id);
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text('Successfully deleted a journal!'),
+      content: Text('Successfully deleted a note!'),
     ));
     _refreshJournals();
   }
@@ -145,32 +140,31 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('SQLite CRUD'),
+        title: const Text('Sqlite CRUD'),
       ),
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(),
             )
           : ListView.builder(
-              itemCount: _journals.length,
+              itemCount: _notes.length,
               itemBuilder: (context, index) => Card(
                 color: Colors.orange[200],
                 margin: const EdgeInsets.all(15),
                 child: ListTile(
-                    title: Text(_journals[index]['title']),
-                    subtitle: Text(_journals[index]['description']),
+                    title: Text(_notes[index]['title']),
+                    subtitle: Text(_notes[index]['datetime']),
                     trailing: SizedBox(
                       width: 100,
                       child: Row(
                         children: [
                           IconButton(
                             icon: const Icon(Icons.edit),
-                            onPressed: () => _showForm(_journals[index]['id']),
+                            onPressed: () => _showForm(_notes[index]['id']),
                           ),
                           IconButton(
                             icon: const Icon(Icons.delete),
-                            onPressed: () =>
-                                _deleteItem(_journals[index]['id']),
+                            onPressed: () => _deleteItem(_notes[index]['id']),
                           ),
                         ],
                       ),
