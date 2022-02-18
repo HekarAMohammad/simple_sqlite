@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Sqlite CRUD',
         theme: ThemeData(
-          primarySwatch: Colors.orange,
+          primarySwatch: Colors.blue,
         ),
         home: const HomePage());
   }
@@ -149,7 +149,7 @@ class _HomePageState extends State<HomePage> {
           : ListView.builder(
               itemCount: _notes.length,
               itemBuilder: (context, index) => Card(
-                color: Colors.orange[200],
+                color: Color.fromARGB(255, 164, 198, 236),
                 margin: const EdgeInsets.all(15),
                 child: ListTile(
                     title: Text(_notes[index]['title']),
