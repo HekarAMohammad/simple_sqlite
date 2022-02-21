@@ -1,6 +1,4 @@
-// main.dart
 import 'package:flutter/material.dart';
-
 import 'sql_helper.dart';
 
 void main() {
@@ -115,13 +113,13 @@ class _HomePageState extends State<HomePage> {
             ));
   }
 
-// Insert a new journal to the database
+// Insert a new note to the database
   Future<void> _addItem() async {
     await SQLHelper.createItem(_titleController.text, _dateControler.text);
     _refreshJournals();
   }
 
-  // Update an existing journal
+  // Update an existing notes
   Future<void> _updateItem(int id) async {
     await SQLHelper.updateItem(id, _titleController.text, _dateControler.text);
     _refreshJournals();
